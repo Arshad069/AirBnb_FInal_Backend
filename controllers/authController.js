@@ -2,21 +2,35 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+
 exports.register = async (req, res) => {
-    try {
-      const { username, email, password, role } = req.body;
-  
-      const existingUser = await User.findOne({ email });
-      if (existingUser) return res.status(400).json({ error: 'User already exists' });
-  
-      const newUser = new User({ username, email, password, role });
-      await newUser.save();
-  
-      res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Server error' });
-    }
-  };
+  try {
+    const { username, email, password, role } = req.body;
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ error: 'User already exists' });
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user instance with the hashed password
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword, // Save the hashed password
+      role,
+    });
+
+    // Save the new user to the database
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).json({ error: 'Server error' });
+  }
+};
   
 
 
