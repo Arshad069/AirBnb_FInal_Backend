@@ -12,6 +12,7 @@ exports.getAllListings = async (req, res) => {
   }
 };
 
+
 exports.getFilteredListings = async (req, res) => {
   try {
     const { location, title } = req.query;
